@@ -1,0 +1,57 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Models\{{modelName}};
+use Illuminate\Http\Request;
+
+class {{modelName}}Controller extends Controller
+{
+    public function {{modelName}}List(Request $request)
+    {
+       $sort_field = $request->get('sortField') ?? 'id';
+       $order = $request->get('sortOrder') == 'ascend' ? 'asc' : 'desc';
+       ${{modelNamePluralLowerCase}} = {{modelName}}::query()->where(function($query)use($request){
+           if($request->get('keywords')){
+               $query->where('title','like','%'.$request->get('keywords').'%');
+           }
+       })->orderBy($sort_field,$order)->paginate($request->get('page_size') ?? 10);
+        return $this->success('',${{modelNamePluralLowerCase}});
+    }
+
+    public function create{{modelName}}(Request $request)
+    {
+        $data = $request->all();
+        $param = [
+            'data'=>$data['name'],
+        ];
+        $result = {{modelName}}::query()->create($param);
+        if(!$result){
+            return $this->error('添加失败');
+        }
+        return $this->success('添加成功');
+    }
+
+    public function update{{modelName}}(Request $request)
+    {
+        $data = $request->all();
+        $param = [
+            'data'=>$data['name'],
+        ];
+        $result = {{modelName}}::query()->where(['id'=>$data['id']])->update($param);
+        if(!$result){
+            return $this->error('修改失败');
+        }
+        return $this->success('修改成功');
+    }
+
+    public function delete{{modelName}}(Request $request)
+    {
+        $data = $request->all();
+        $result = {{modelName}}::query()->whereIn('id',$data['ids'])->delete();
+        if(!$result){
+            return $this->error('删除失败');
+        }
+        return $this->success('删除成功');
+    }
+}
